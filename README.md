@@ -34,7 +34,28 @@ cd hunter
 2. Создайте виртуальное окружение (рекомендуется) / Create a virtual environment (recommended):
 ```bash
 python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+```
+
+**Активация виртуального окружения / Activate virtual environment:**
+
+Linux/Mac:
+```bash
+source venv/bin/activate
+```
+
+Windows PowerShell:
+```powershell
+venv\Scripts\Activate.ps1
+```
+
+*Примечание / Note: Если возникает ошибка выполнения скрипта в PowerShell, выполните / If you get a script execution error in PowerShell, run:*
+```powershell
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+```
+
+Windows Command Prompt:
+```cmd
+venv\Scripts\activate.bat
 ```
 
 3. Установите зависимости / Install dependencies:
