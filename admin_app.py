@@ -8,10 +8,21 @@ import sqlite3
 from datetime import datetime, timedelta
 from functools import wraps
 from flask import Flask, render_template, request, redirect, url_for, session, flash, g
+from flask_babel import Babel, gettext as _
 import pytz
 
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-production')
+
+# Configure Babel for internationalization
+app.config['BABEL_DEFAULT_LOCALE'] = 'ru'
+app.config['BABEL_TRANSLATION_DIRECTORIES'] = 'translations'
+
+def get_locale():
+    # Try to get language from session, otherwise use default
+    return session.get('language', 'ru')
+
+babel = Babel(app, locale_selector=get_locale)
 
 # Load settings
 with open('settings.json', 'r') as f:
@@ -154,7 +165,7 @@ def login():
             session['logged_in'] = True
             return redirect(url_for('pending'))
         else:
-            flash('Invalid password', 'error')
+            flash(_('Invalid password'), 'error')
     return render_template('login.html')
 
 
@@ -162,6 +173,14 @@ def login():
 def logout():
     """Logout"""
     session.pop('logged_in', None)
+    return redirect(url_for('login'))
+
+
+@app.route('/language/<lang>')
+def set_language(lang):
+    """Set language preference"""
+    session['language'] = lang
+    return redirect(request.referrer or url_for('index'))
     return redirect(url_for('login'))
 
 
@@ -215,7 +234,7 @@ def confirm_group(group_id):
         ('confirmed', group_id, 'pending')
     )
     db.commit()
-    flash(f'Group {group_id} confirmed', 'success')
+    flash(_('Group %s confirmed') % group_id, 'success')
     return redirect(url_for('pending'))
 
 
@@ -229,7 +248,7 @@ def cancel_group(group_id):
         ('cancelled', group_id, 'pending')
     )
     db.commit()
-    flash(f'Group {group_id} cancelled', 'success')
+    flash(_('Group %s cancelled') % group_id, 'success')
     return redirect(url_for('pending'))
 
 
@@ -243,7 +262,7 @@ def delete_group(group_id):
         (group_id, 'pending')
     )
     db.commit()
-    flash(f'Group {group_id} deleted', 'success')
+    flash(_('Group %s deleted') % group_id, 'success')
     return redirect(url_for('pending'))
 
 
@@ -296,7 +315,7 @@ def delete_booking(booking_id):
     db = get_db()
     db.execute('DELETE FROM bookings WHERE id = ?', (booking_id,))
     db.commit()
-    flash(f'Booking {booking_id} deleted', 'success')
+    flash(_('Booking %d deleted') % booking_id, 'success')
     return redirect(url_for('bookings'))
 
 
@@ -327,7 +346,7 @@ def toggle_pc(pc_id):
         new_status = 0 if pc['active'] else 1
         db.execute('UPDATE pcs SET active = ? WHERE id = ?', (new_status, pc_id))
         db.commit()
-        flash(f'PC status updated', 'success')
+        flash(_('PC status updated'), 'success')
     return redirect(url_for('pcs'))
 
 
@@ -409,7 +428,7 @@ def smart_preview():
         selected_pcs = request.form.getlist('pc_ids')
         
         if not selected_pcs:
-            flash('Please select at least one PC', 'error')
+            flash(_('Please select at least one PC'), 'error')
             return redirect(url_for('smart_preview'))
         
         # Generate group_id
@@ -430,7 +449,7 @@ def smart_preview():
         
         db.commit()
         session.pop('smart_create', None)
-        flash(f'Created {len(selected_pcs)} pending bookings in group {group_id}', 'success')
+        flash(_('Created %d pending bookings in group %s') % (len(selected_pcs), group_id), 'success')
         return redirect(url_for('pending'))
     
     # Find free PCs in the zone

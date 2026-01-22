@@ -1,0 +1,194 @@
+# Russian translations for PC Club Admin
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Language: ru\n"
+
+msgid "PC Club Admin"
+msgstr "Админ ПК Клуба"
+
+msgid "Admin Login"
+msgstr "Вход Администратора"
+
+msgid "Password"
+msgstr "Пароль"
+
+msgid "Login"
+msgstr "Войти"
+
+msgid "Logout"
+msgstr "Выйти"
+
+msgid "Pending"
+msgstr "Ожидание"
+
+msgid "Bookings"
+msgstr "Бронирования"
+
+msgid "PCs"
+msgstr "Компьютеры"
+
+msgid "Zones"
+msgstr "Зоны"
+
+msgid "Waitlist"
+msgstr "Лист ожидания"
+
+msgid "Smart Create"
+msgstr "Умное Создание"
+
+msgid "Pending Bookings"
+msgstr "Ожидающие Бронирования"
+
+msgid "All Bookings"
+msgstr "Все Бронирования"
+
+msgid "No pending bookings."
+msgstr "Нет ожидающих бронирований."
+
+msgid "No bookings found."
+msgstr "Бронирования не найдены."
+
+msgid "Group"
+msgstr "Группа"
+
+msgid "Confirm"
+msgstr "Подтвердить"
+
+msgid "Cancel"
+msgstr "Отменить"
+
+msgid "Delete"
+msgstr "Удалить"
+
+msgid "ID"
+msgstr "ID"
+
+msgid "PC"
+msgstr "ПК"
+
+msgid "Zone"
+msgstr "Зона"
+
+msgid "Start Time"
+msgstr "Время Начала"
+
+msgid "End Time"
+msgstr "Время Окончания"
+
+msgid "Created"
+msgstr "Создано"
+
+msgid "Status"
+msgstr "Статус"
+
+msgid "Group ID"
+msgstr "ID Группы"
+
+msgid "Actions"
+msgstr "Действия"
+
+msgid "Active"
+msgstr "Активен"
+
+msgid "Inactive"
+msgstr "Неактивен"
+
+msgid "PC Number"
+msgstr "Номер ПК"
+
+msgid "Activate"
+msgstr "Активировать"
+
+msgid "Deactivate"
+msgstr "Деактивировать"
+
+msgid "Name"
+msgstr "Название"
+
+msgid "Price per Hour"
+msgstr "Цена за Час"
+
+msgid "Requested PCs"
+msgstr "Запрошенные ПК"
+
+msgid "Duration (hours)"
+msgstr "Длительность (часы)"
+
+msgid "Number of PCs"
+msgstr "Количество ПК"
+
+msgid "Smart Create Booking"
+msgstr "Умное Создание Бронирования"
+
+msgid "Select a zone"
+msgstr "Выберите зону"
+
+msgid "Select start time"
+msgstr "Выберите время начала"
+
+msgid "Next: Choose PCs"
+msgstr "Далее: Выбор ПК"
+
+msgid "Choose PCs"
+msgstr "Выбор ПК"
+
+msgid "Available PCs"
+msgstr "Доступные ПК"
+
+msgid "free"
+msgstr "свободно"
+
+msgid "Create Bookings"
+msgstr "Создать Бронирования"
+
+msgid "Back"
+msgstr "Назад"
+
+msgid "Duration"
+msgstr "Длительность"
+
+msgid "hours"
+msgstr "часов"
+
+msgid "Filter"
+msgstr "Фильтр"
+
+msgid "All Zones"
+msgstr "Все Зоны"
+
+msgid "All Statuses"
+msgstr "Все Статусы"
+
+msgid "pending"
+msgstr "ожидание"
+
+msgid "confirmed"
+msgstr "подтверждено"
+
+msgid "cancelled"
+msgstr "отменено"
+
+msgid "Invalid password"
+msgstr "Неверный пароль"
+
+msgid "Created %d pending bookings in group %s"
+msgstr "Создано %d ожидающих бронирований в группе %s"
+
+msgid "Group %s confirmed"
+msgstr "Группа %s подтверждена"
+
+msgid "Group %s cancelled"
+msgstr "Группа %s отменена"
+
+msgid "Group %s deleted"
+msgstr "Группа %s удалена"
+
+msgid "Booking %d deleted"
+msgstr "Бронирование %d удалено"
+
+msgid "PC status updated"
+msgstr "Статус ПК обновлен"
+
+msgid "Please select at least one PC"
+msgstr "Пожалуйста, выберите хотя бы один ПК"
