@@ -609,6 +609,7 @@ def main():
             SELECTING_PCS: [CallbackQueryHandler(select_pc)],
         },
         fallbacks=[CommandHandler('cancel', cancel)],
+        per_message=False,
     )
     
     application.add_handler(conv_handler)
