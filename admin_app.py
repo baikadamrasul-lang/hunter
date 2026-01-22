@@ -276,12 +276,21 @@ def confirm_group(group_id):
     # For now, we'll add a simple notification mechanism
     for customer in customers:
         if customer['customer_telegram_id']:
+            # Booking rules message
+            rules_message = (
+                f"✅ Ваше бронирование подтверждено администратором!\n\n"
+                f"🔴ВАЖНО🔴 - Правила брони!!!\n\n"
+                f"1. Бронь держится 15 мин, после переходит к следующему игроку.\n\n"
+                f"2. Бронь больше 5 ПК оплата 50% от общей суммы.\n\n"
+                f"3. В случае отмены брони менее чем за 4 часа аванс не возвращается! "
+                f"(Повторная отмена брони, номер телефона добавляется в черный список)\n\n"
+                f"4. В случае неявки номер телефона добавляется в черный список."
+            )
             # Store notification for bot to send
             db.execute('''
                 INSERT INTO notifications (telegram_id, message, created_at)
                 VALUES (?, ?, CURRENT_TIMESTAMP)
-            ''', (customer['customer_telegram_id'], 
-                  f"✅ Ваше бронирование {group_id} подтверждено администратором!"))
+            ''', (customer['customer_telegram_id'], rules_message))
     
     db.commit()
     flash(_('Group %s confirmed') % group_id, 'success')
