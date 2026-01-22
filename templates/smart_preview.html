@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block title %}Smart Create Preview - PC Club Admin{% endblock %}
+
+{% block content %}
+<h2>Choose PCs</h2>
+
+<div style="background-color: #f8f9fa; padding: 1rem; border-radius: 4px; margin-bottom: 1rem;">
+    <p><strong>Zone:</strong> {{ zone_name }}</p>
+    <p><strong>Start Time:</strong> {{ start_time }}</p>
+    <p><strong>End Time:</strong> {{ end_time }}</p>
+    <p><strong>Duration:</strong> {{ hours }} hours</p>
+    <p><strong>Requested PCs:</strong> {{ qty }}</p>
+</div>
+
+{% if free_pcs %}
+    <form method="POST">
+        <h3>Available PCs ({{ free_pcs|length }} free)</h3>
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 1rem; margin: 1rem 0;">
+            {% for pc in free_pcs %}
+                <label style="display: flex; align-items: center; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px; cursor: pointer;">
+                    <input type="checkbox" name="pc_ids" value="{{ pc.id }}" style="margin-right: 0.5rem;">
+                    PC #{{ pc.number }}
+                </label>
+            {% endfor %}
+        </div>
+        <div style="margin-top: 1rem;">
+            <button type="submit" class="btn btn-success">Create Bookings</button>
+            <a href="{{ url_for('smart_create') }}" class="btn btn-warning">Back</a>
+        </div>
+    </form>
+{% else %}
+    <p>No free PCs available for the selected time slot.</p>
+    <a href="{{ url_for('smart_create') }}" class="btn btn-primary">Try Again</a>
+{% endif %}
+{% endblock %}

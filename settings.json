@@ -1,0 +1,97 @@
+{
+  "CLUB_TZ": "Asia/Almaty",
+  "SEED": {
+    "zones": [
+      {
+        "name": "STANDART",
+        "price_per_hour": 500
+      },
+      {
+        "name": "COMFORT",
+        "price_per_hour": 700
+      },
+      {
+        "name": "VIP",
+        "price_per_hour": 1000
+      },
+      {
+        "name": "BOOT CAMP",
+        "price_per_hour": 600
+      },
+      {
+        "name": "PREMIUM ZONE",
+        "price_per_hour": 1200
+      }
+    ],
+    "pcs": [
+      {"zone": "STANDART", "number": 1},
+      {"zone": "STANDART", "number": 2},
+      {"zone": "STANDART", "number": 3},
+      {"zone": "STANDART", "number": 4},
+      {"zone": "STANDART", "number": 5},
+      {"zone": "STANDART", "number": 6},
+      {"zone": "STANDART", "number": 7},
+      {"zone": "STANDART", "number": 8},
+      {"zone": "STANDART", "number": 9},
+      {"zone": "STANDART", "number": 10},
+      {"zone": "STANDART", "number": 11},
+      {"zone": "STANDART", "number": 12},
+      {"zone": "STANDART", "number": 13},
+      {"zone": "STANDART", "number": 14},
+      {"zone": "STANDART", "number": 15},
+      {"zone": "STANDART", "number": 16},
+      {"zone": "STANDART", "number": 17},
+      {"zone": "STANDART", "number": 18},
+      {"zone": "STANDART", "number": 19},
+      {"zone": "STANDART", "number": 20},
+      {"zone": "STANDART", "number": 21},
+      {"zone": "STANDART", "number": 22},
+      {"zone": "STANDART", "number": 23},
+      {"zone": "STANDART", "number": 24},
+      {"zone": "STANDART", "number": 25},
+      {"zone": "COMFORT", "number": 26},
+      {"zone": "COMFORT", "number": 27},
+      {"zone": "COMFORT", "number": 28},
+      {"zone": "COMFORT", "number": 29},
+      {"zone": "COMFORT", "number": 30},
+      {"zone": "COMFORT", "number": 31},
+      {"zone": "COMFORT", "number": 32},
+      {"zone": "COMFORT", "number": 33},
+      {"zone": "COMFORT", "number": 34},
+      {"zone": "COMFORT", "number": 35},
+      {"zone": "COMFORT", "number": 36},
+      {"zone": "COMFORT", "number": 37},
+      {"zone": "COMFORT", "number": 38},
+      {"zone": "COMFORT", "number": 39},
+      {"zone": "COMFORT", "number": 40},
+      {"zone": "COMFORT", "number": 41},
+      {"zone": "COMFORT", "number": 42},
+      {"zone": "COMFORT", "number": 43},
+      {"zone": "BOOT CAMP", "number": 44},
+      {"zone": "BOOT CAMP", "number": 45},
+      {"zone": "BOOT CAMP", "number": 46},
+      {"zone": "BOOT CAMP", "number": 47},
+      {"zone": "BOOT CAMP", "number": 48},
+      {"zone": "BOOT CAMP", "number": 49},
+      {"zone": "BOOT CAMP", "number": 50},
+      {"zone": "BOOT CAMP", "number": 51},
+      {"zone": "BOOT CAMP", "number": 52},
+      {"zone": "BOOT CAMP", "number": 53},
+      {"zone": "VIP", "number": 101},
+      {"zone": "VIP", "number": 102},
+      {"zone": "VIP", "number": 103},
+      {"zone": "VIP", "number": 104},
+      {"zone": "VIP", "number": 105},
+      {"zone": "PREMIUM ZONE", "number": 106},
+      {"zone": "PREMIUM ZONE", "number": 107},
+      {"zone": "PREMIUM ZONE", "number": 108},
+      {"zone": "PREMIUM ZONE", "number": 109},
+      {"zone": "PREMIUM ZONE", "number": 110},
+      {"zone": "PREMIUM ZONE", "number": 111},
+      {"zone": "PREMIUM ZONE", "number": 112},
+      {"zone": "PREMIUM ZONE", "number": 113},
+      {"zone": "PREMIUM ZONE", "number": 114},
+      {"zone": "PREMIUM ZONE", "number": 115}
+    ]
+  }
+}

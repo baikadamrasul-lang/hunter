@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}PCs - PC Club Admin{% endblock %}
+
+{% block content %}
+<h2>PCs</h2>
+
+{% if pcs %}
+    <table>
+        <thead>
+            <tr>
+                <th>PC Number</th>
+                <th>Zone</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for pc in pcs %}
+                <tr>
+                    <td>PC #{{ pc.number }}</td>
+                    <td>{{ pc.zone_name }}</td>
+                    <td>
+                        {% if pc.active %}
+                            <span class="status-badge status-confirmed">Active</span>
+                        {% else %}
+                            <span class="status-badge status-cancelled">Inactive</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <form method="POST" action="{{ url_for('toggle_pc', pc_id=pc.id) }}" style="display: inline; margin: 0;">
+                            <button type="submit" class="btn btn-primary btn-sm">
+                                {% if pc.active %}Deactivate{% else %}Activate{% endif %}
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <p>No PCs found.</p>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}Bookings - PC Club Admin{% endblock %}
+
+{% block content %}
+<h2>All Bookings</h2>
+
+<div class="filters">
+    <form method="GET" style="display: flex; gap: 1rem; width: 100%; margin: 0;">
+        <div class="filter-group">
+            <label for="zone">Zone</label>
+            <select id="zone" name="zone">
+                <option value="">All Zones</option>
+                {% for zone in zones %}
+                    <option value="{{ zone }}" {% if zone == selected_zone %}selected{% endif %}>{{ zone }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="filter-group">
+            <label for="status">Status</label>
+            <select id="status" name="status">
+                <option value="">All Statuses</option>
+                <option value="pending" {% if selected_status == 'pending' %}selected{% endif %}>Pending</option>
+                <option value="confirmed" {% if selected_status == 'confirmed' %}selected{% endif %}>Confirmed</option>
+                <option value="cancelled" {% if selected_status == 'cancelled' %}selected{% endif %}>Cancelled</option>
+            </select>
+        </div>
+        <div class="filter-group" style="display: flex; align-items: flex-end;">
+            <button type="submit" class="btn btn-primary">Filter</button>
+        </div>
+    </form>
+</div>
+
+{% if bookings %}
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>PC</th>
+                <th>Zone</th>
+                <th>Start Time</th>
+                <th>End Time</th>
+                <th>Status</th>
+                <th>Group ID</th>
+                <th>Created</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for booking in bookings %}
+                <tr>
+                    <td>{{ booking.id }}</td>
+                    <td>PC #{{ booking.pc_number }}</td>
+                    <td>{{ booking.zone_name }}</td>
+                    <td>{{ booking.start_time }}</td>
+                    <td>{{ booking.end_time }}</td>
+                    <td><span class="status-badge status-{{ booking.status }}">{{ booking.status }}</span></td>
+                    <td>{{ booking.group_id or '-' }}</td>
+                    <td>{{ booking.created_at }}</td>
+                    <td>
+                        <form method="POST" action="{{ url_for('delete_booking', booking_id=booking.id) }}" style="display: inline; margin: 0;" onsubmit="return confirm('Are you sure you want to delete this booking?');">
+                            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <p>No bookings found.</p>
+{% endif %}
+{% endblock %}

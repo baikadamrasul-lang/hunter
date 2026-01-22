@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block title %}Zones - PC Club Admin{% endblock %}
+
+{% block content %}
+<h2>Zones</h2>
+
+{% if zones %}
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Price per Hour</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for zone in zones %}
+                <tr>
+                    <td>{{ zone.id }}</td>
+                    <td>{{ zone.name }}</td>
+                    <td>{{ zone.price_per_hour }} ₸</td>
+                    <td>
+                        {% if zone.active %}
+                            <span class="status-badge status-confirmed">Active</span>
+                        {% else %}
+                            <span class="status-badge status-cancelled">Inactive</span>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <p>No zones found.</p>
+{% endif %}
+{% endblock %}
