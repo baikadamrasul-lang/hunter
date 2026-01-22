@@ -42,7 +42,7 @@ if not BOT_TOKEN:
     exit(1)
 
 # Conversation states
-SELECTING_ZONE, SELECTING_TIME, SELECTING_DURATION, SELECTING_QTY, SELECTING_PCS = range(5)
+SELECTING_ZONE, SELECTING_TIME, SELECTING_DURATION, SELECTING_QTY, ASKING_NAME, ASKING_PHONE, SELECTING_PCS = range(7)
 
 
 def get_db():
@@ -274,11 +274,52 @@ async def select_qty(update: Update, context: ContextTypes.DEFAULT_TYPE):
     qty = int(qty_data)
     context.user_data['qty'] = qty
     
-    # Find available PCs
+    # Ask for customer name
+    await query.edit_message_text(
+        f"Зона: {context.user_data['zone_name']}\n"
+        f"Время: {context.user_data['start_time']}\n"
+        f"Длительность: {context.user_data['duration']} ч\n"
+        f"Количество: {qty} ПК\n\n"
+        "👤 Введите ваше имя:"
+    )
+    
+    return ASKING_NAME
+
+
+async def handle_name_input(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Handle customer name input"""
+    name = update.message.text.strip()
+    
+    if len(name) < 2:
+        await update.message.reply_text("❌ Пожалуйста, введите корректное имя (минимум 2 символа)")
+        return ASKING_NAME
+    
+    context.user_data['customer_name'] = name
+    
+    await update.message.reply_text(
+        f"Имя: {name}\n\n"
+        "📱 Введите ваш номер телефона:"
+    )
+    
+    return ASKING_PHONE
+
+
+async def handle_phone_input(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Handle customer phone input"""
+    phone = update.message.text.strip()
+    
+    if len(phone) < 10:
+        await update.message.reply_text("❌ Пожалуйста, введите корректный номер телефона")
+        return ASKING_PHONE
+    
+    context.user_data['customer_phone'] = phone
+    
+    # Now find available PCs
     db = get_db()
     zone_id = context.user_data['zone_id']
     start_time = context.user_data['start_time']
     duration = context.user_data['duration']
+    qty = context.user_data['qty']
     
     start_dt = datetime.strptime(start_time, '%Y-%m-%d %H:%M')
     end_dt = start_dt + timedelta(hours=duration)
@@ -300,7 +341,7 @@ async def select_qty(update: Update, context: ContextTypes.DEFAULT_TYPE):
             SELECT COUNT(*) as count
             FROM bookings
             WHERE pc_id = ?
-              AND status IN ('pending', 'confirmed')
+              AND status IN ('pending', 'confirmed', 'occupied')
               AND NOT (end_time <= ? OR start_time >= ?)
         ''', (pc['id'], start_time, end_time))
         
@@ -310,7 +351,7 @@ async def select_qty(update: Update, context: ContextTypes.DEFAULT_TYPE):
     db.close()
     
     if len(free_pcs) < qty:
-        await query.edit_message_text(
+        await update.message.reply_text(
             f"❌ К сожалению, свободно только {len(free_pcs)} ПК.\n"
             "Попробуйте выбрать другое время или зону.\n\n"
             "Используйте /book для новой попытки."
@@ -335,7 +376,9 @@ async def select_qty(update: Update, context: ContextTypes.DEFAULT_TYPE):
     context.user_data['available_pcs'] = free_pcs
     context.user_data['selected_pcs'] = []
     
-    await query.edit_message_text(
+    await update.message.reply_text(
+        f"Имя: {context.user_data['customer_name']}\n"
+        f"Телефон: {phone}\n"
         f"Зона: {context.user_data['zone_name']}\n"
         f"Время: {start_time}\n"
         f"Длительность: {duration} ч\n"
@@ -357,77 +400,16 @@ async def handle_custom_qty(update: Update, context: ContextTypes.DEFAULT_TYPE):
         
         context.user_data['qty'] = qty
         
-        # Find available PCs
-        db = get_db()
-        zone_id = context.user_data['zone_id']
-        start_time = context.user_data['start_time']
-        duration = context.user_data['duration']
-        
-        start_dt = datetime.strptime(start_time, '%Y-%m-%d %H:%M')
-        end_dt = start_dt + timedelta(hours=duration)
-        end_time = end_dt.strftime('%Y-%m-%d %H:%M')
-        
-        # Get all PCs in zone
-        cursor = db.execute('''
-            SELECT p.id, p.number
-            FROM pcs p
-            WHERE p.zone_id = ? AND p.active = 1
-            ORDER BY p.number
-        ''', (zone_id,))
-        all_pcs = cursor.fetchall()
-        
-        # Check which are free
-        free_pcs = []
-        for pc in all_pcs:
-            cursor = db.execute('''
-                SELECT COUNT(*) as count
-                FROM bookings
-                WHERE pc_id = ?
-                  AND status IN ('pending', 'confirmed')
-                  AND NOT (end_time <= ? OR start_time >= ?)
-            ''', (pc['id'], start_time, end_time))
-            
-            if cursor.fetchone()['count'] == 0:
-                free_pcs.append(dict(pc))
-        
-        db.close()
-        
-        if len(free_pcs) < qty:
-            await update.message.reply_text(
-                f"❌ К сожалению, свободно только {len(free_pcs)} ПК.\n"
-                "Попробуйте выбрать другое время или зону.\n\n"
-                "Используйте /book для новой попытки."
-            )
-            return ConversationHandler.END
-        
-        # Show available PCs
-        keyboard = []
-        for pc in free_pcs[:10]:  # Show max 10 PCs at a time
-            keyboard.append([InlineKeyboardButton(
-                f"ПК #{pc['number']}",
-                callback_data=f"pc_{pc['id']}"
-            )])
-        
-        keyboard.append([InlineKeyboardButton(
-            "✅ Подтвердить выбор",
-            callback_data="confirm_pcs"
-        )])
-        
-        reply_markup = InlineKeyboardMarkup(keyboard)
-        
-        context.user_data['available_pcs'] = free_pcs
-        context.user_data['selected_pcs'] = []
-        
+        # Ask for customer name
         await update.message.reply_text(
             f"Зона: {context.user_data['zone_name']}\n"
-            f"Время: {start_time}\n"
-            f"Длительность: {duration} ч\n"
+            f"Время: {context.user_data['start_time']}\n"
+            f"Длительность: {context.user_data['duration']} ч\n"
             f"Количество: {qty} ПК\n\n"
-            f"🖥️ Доступно {len(free_pcs)} ПК. Выберите {qty} компьютеров:",
-            reply_markup=reply_markup
+            "👤 Введите ваше имя:"
         )
         
-        return SELECTING_PCS
+        return ASKING_NAME
     except ValueError:
         await update.message.reply_text("❌ Пожалуйста, введите корректное число")
         return SELECTING_QTY
@@ -461,10 +443,16 @@ async def select_pc(update: Update, context: ContextTypes.DEFAULT_TYPE):
         end_dt = start_dt + timedelta(hours=duration)
         end_time = end_dt.strftime('%Y-%m-%d %H:%M')
         
+        customer_name = context.user_data.get('customer_name', '')
+        customer_phone = context.user_data.get('customer_phone', '')
+        
         for pc_id in selected_pcs:
             db.execute(
-                'INSERT INTO bookings (pc_id, start_time, end_time, group_id, status) VALUES (?, ?, ?, ?, ?)',
-                (pc_id, start_time, end_time, group_id, 'pending')
+                '''INSERT INTO bookings (pc_id, start_time, end_time, group_id, status, 
+                   customer_name, customer_phone, customer_telegram_id) 
+                   VALUES (?, ?, ?, ?, ?, ?, ?, ?)''',
+                (pc_id, start_time, end_time, group_id, 'pending', 
+                 customer_name, customer_phone, str(user_id))
             )
         
         db.commit()
@@ -480,13 +468,14 @@ async def select_pc(update: Update, context: ContextTypes.DEFAULT_TYPE):
         
         await query.edit_message_text(
             f"✅ Бронирование создано!\n\n"
+            f"👤 Имя: {customer_name}\n"
+            f"📱 Телефон: {customer_phone}\n"
             f"🏢 Зона: {context.user_data['zone_name']}\n"
             f"⏰ Время: {start_time}\n"
             f"⏱️ Длительность: {duration} ч\n"
             f"🖥️ Компьютеры: {qty} ПК\n"
             f"💰 Стоимость: {total_cost:.0f} ₸\n\n"
-            f"📋 ID группы: {group_id}\n"
-            f"Статус: Ожидает подтверждения администратором\n\n"
+            f"Статус: ⏳ Ожидает подтверждения администратором\n\n"
             "Используйте /mybookings для просмотра своих бронирований."
         )
         
@@ -536,14 +525,14 @@ async def my_bookings(update: Update, context: ContextTypes.DEFAULT_TYPE):
     db = get_db()
     cursor = db.execute('''
         SELECT b.id, b.start_time, b.end_time, b.status, b.group_id,
-               p.number as pc_number, z.name as zone_name
+               p.number as pc_number, z.name as zone_name, z.price_per_hour
         FROM bookings b
         JOIN pcs p ON b.pc_id = p.id
         JOIN zones z ON p.zone_id = z.id
-        WHERE b.group_id LIKE ?
+        WHERE b.customer_telegram_id = ?
         ORDER BY b.start_time DESC
         LIMIT 20
-    ''', (f'tg_{user_id}%',))
+    ''', (str(user_id),))
     
     bookings = cursor.fetchall()
     db.close()
@@ -558,19 +547,31 @@ async def my_bookings(update: Update, context: ContextTypes.DEFAULT_TYPE):
     text = "📋 Ваши бронирования:\n\n"
     
     current_group = None
+    group_pcs = []
     for booking in bookings:
         if booking['group_id'] != current_group:
-            current_group = booking['group_id']
-            status_emoji = {
-                'pending': '⏳',
-                'confirmed': '✅',
-                'cancelled': '❌'
-            }.get(booking['status'], '❓')
+            if current_group:
+                # Print previous group summary
+                text += f"  Компьютеры: {', '.join(group_pcs)}\n"
             
-            text += f"\n{status_emoji} Группа: {booking['group_id']}\n"
-            text += f"Время: {booking['start_time']} - {booking['end_time']}\n"
+            current_group = booking['group_id']
+            group_pcs = []
+            status_emoji = {
+                'pending': '⏳ Ожидает подтверждения',
+                'confirmed': '✅ Подтверждено',
+                'cancelled': '❌ Отменено',
+                'occupied': '🔴 Занято'
+            }.get(booking['status'], '❓ Неизвестно')
+            
+            text += f"\n{status_emoji}\n"
+            text += f"🏢 Зона: {booking['zone_name']}\n"
+            text += f"⏰ Время: {booking['start_time']} - {booking['end_time']}\n"
         
-        text += f"  • ПК #{booking['pc_number']} ({booking['zone_name']})\n"
+        group_pcs.append(f"#{booking['pc_number']}")
+    
+    # Print last group
+    if group_pcs:
+        text += f"  Компьютеры: {', '.join(group_pcs)}\n"
     
     await update.message.reply_text(text)
 
@@ -603,6 +604,8 @@ def main():
                 CallbackQueryHandler(select_qty, pattern='^qty_'),
                 MessageHandler(filters.TEXT & ~filters.COMMAND, handle_custom_qty)
             ],
+            ASKING_NAME: [MessageHandler(filters.TEXT & ~filters.COMMAND, handle_name_input)],
+            ASKING_PHONE: [MessageHandler(filters.TEXT & ~filters.COMMAND, handle_phone_input)],
             SELECTING_PCS: [CallbackQueryHandler(select_pc)],
         },
         fallbacks=[CommandHandler('cancel', cancel)],
@@ -616,9 +619,37 @@ def main():
     application.add_handler(CommandHandler('zones', zones_command))
     application.add_handler(CommandHandler('mybookings', my_bookings))
     
+    # Add job to check for notifications every 10 seconds
+    application.job_queue.run_repeating(check_notifications, interval=10, first=10)
+    
     # Run the bot
     logger.info("Starting Telegram bot...")
     application.run_polling(allowed_updates=Update.ALL_TYPES)
+
+
+async def check_notifications(context: ContextTypes.DEFAULT_TYPE):
+    """Check for pending notifications and send them"""
+    db = get_db()
+    cursor = db.execute('''
+        SELECT id, telegram_id, message
+        FROM notifications
+        WHERE sent = 0
+        LIMIT 10
+    ''')
+    notifications = cursor.fetchall()
+    
+    for notif in notifications:
+        try:
+            await context.bot.send_message(
+                chat_id=notif['telegram_id'],
+                text=notif['message']
+            )
+            db.execute('UPDATE notifications SET sent = 1 WHERE id = ?', (notif['id'],))
+            db.commit()
+        except Exception as e:
+            logger.error(f"Failed to send notification {notif['id']}: {e}")
+    
+    db.close()
 
 
 if __name__ == '__main__':

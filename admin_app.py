@@ -87,10 +87,27 @@ def init_db():
             end_time TEXT NOT NULL,
             status TEXT DEFAULT 'pending',
             group_id TEXT,
+            customer_name TEXT,
+            customer_phone TEXT,
+            customer_telegram_id TEXT,
             created_at TEXT DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (pc_id) REFERENCES pcs(id)
         )
     ''')
+    
+    # Add new columns if they don't exist (for existing databases)
+    try:
+        db.execute('ALTER TABLE bookings ADD COLUMN customer_name TEXT')
+    except:
+        pass
+    try:
+        db.execute('ALTER TABLE bookings ADD COLUMN customer_phone TEXT')
+    except:
+        pass
+    try:
+        db.execute('ALTER TABLE bookings ADD COLUMN customer_telegram_id TEXT')
+    except:
+        pass
     
     db.execute('''
         CREATE TABLE IF NOT EXISTS waitlist (
@@ -101,6 +118,16 @@ def init_db():
             duration_hours REAL NOT NULL,
             created_at TEXT DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (zone_id) REFERENCES zones(id)
+        )
+    ''')
+    
+    db.execute('''
+        CREATE TABLE IF NOT EXISTS notifications (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            telegram_id TEXT NOT NULL,
+            message TEXT NOT NULL,
+            sent INTEGER DEFAULT 0,
+            created_at TEXT DEFAULT CURRENT_TIMESTAMP
         )
     ''')
     
@@ -228,10 +255,34 @@ def pending():
 def confirm_group(group_id):
     """Confirm a pending group"""
     db = get_db()
+    
+    # Get bookings with customer telegram IDs before confirming
+    cursor = db.execute('''
+        SELECT DISTINCT customer_telegram_id, customer_name
+        FROM bookings
+        WHERE group_id = ? AND status = 'pending' AND customer_telegram_id IS NOT NULL
+    ''', (group_id,))
+    customers = cursor.fetchall()
+    
     db.execute(
         'UPDATE bookings SET status = ? WHERE group_id = ? AND status = ?',
         ('confirmed', group_id, 'pending')
     )
+    db.commit()
+    
+    # Send notifications to customers via Telegram
+    # Note: This requires the bot to be running and accessible
+    # Store notification in a table or use a webhook
+    # For now, we'll add a simple notification mechanism
+    for customer in customers:
+        if customer['customer_telegram_id']:
+            # Store notification for bot to send
+            db.execute('''
+                INSERT INTO notifications (telegram_id, message, created_at)
+                VALUES (?, ?, CURRENT_TIMESTAMP)
+            ''', (customer['customer_telegram_id'], 
+                  f"✅ Ваше бронирование {group_id} подтверждено администратором!"))
+    
     db.commit()
     flash(_('Group %s confirmed') % group_id, 'success')
     return redirect(url_for('pending'))
@@ -278,6 +329,7 @@ def bookings():
     # Build query
     query = '''
         SELECT b.id, b.start_time, b.end_time, b.status, b.group_id, b.created_at,
+               b.customer_name, b.customer_phone,
                p.number as pc_number, z.name as zone_name
         FROM bookings b
         JOIN pcs p ON b.pc_id = p.id
@@ -346,6 +398,36 @@ def toggle_pc(pc_id):
         db.execute('UPDATE pcs SET active = ? WHERE id = ?', (new_status, pc_id))
         db.commit()
         flash(_('PC status updated'), 'success')
+    return redirect(url_for('pcs'))
+
+
+@app.route('/pc/occupy/<int:pc_id>', methods=['POST'])
+@login_required
+def occupy_pc(pc_id):
+    """Mark PC as occupied for walk-in customer"""
+    db = get_db()
+    
+    customer_name = request.form.get('customer_name', '').strip()
+    customer_phone = request.form.get('customer_phone', '').strip()
+    duration = float(request.form.get('duration', 1))
+    
+    if not customer_name or not customer_phone:
+        flash('Customer name and phone are required', 'error')
+        return redirect(url_for('pcs'))
+    
+    # Create occupied booking starting now
+    now = datetime.now(CLUB_TZ)
+    start_time = now.strftime('%Y-%m-%d %H:%M')
+    end_time = (now + timedelta(hours=duration)).strftime('%Y-%m-%d %H:%M')
+    group_id = f"walk_in_{now.strftime('%Y%m%d%H%M%S')}"
+    
+    db.execute('''
+        INSERT INTO bookings (pc_id, start_time, end_time, status, group_id, customer_name, customer_phone)
+        VALUES (?, ?, ?, 'occupied', ?, ?, ?)
+    ''', (pc_id, start_time, end_time, group_id, customer_name, customer_phone))
+    
+    db.commit()
+    flash(f'PC marked as occupied for {customer_name}', 'success')
     return redirect(url_for('pcs'))
 
 

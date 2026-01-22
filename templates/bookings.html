@@ -23,6 +23,7 @@
                 <option value="pending" {% if selected_status == 'pending' %}selected{% endif %}>Pending</option>
                 <option value="confirmed" {% if selected_status == 'confirmed' %}selected{% endif %}>Confirmed</option>
                 <option value="cancelled" {% if selected_status == 'cancelled' %}selected{% endif %}>Cancelled</option>
+                <option value="occupied" {% if selected_status == 'occupied' %}selected{% endif %}>Occupied</option>
             </select>
         </div>
         <div class="filter-group" style="display: flex; align-items: flex-end;">
@@ -38,6 +39,8 @@
                 <th>ID</th>
                 <th>PC</th>
                 <th>Zone</th>
+                <th>Customer</th>
+                <th>Phone</th>
                 <th>Start Time</th>
                 <th>End Time</th>
                 <th>Status</th>
@@ -52,6 +55,8 @@
                     <td>{{ booking.id }}</td>
                     <td>PC #{{ booking.pc_number }}</td>
                     <td>{{ booking.zone_name }}</td>
+                    <td>{{ booking.customer_name or '-' }}</td>
+                    <td>{{ booking.customer_phone or '-' }}</td>
                     <td>{{ booking.start_time }}</td>
                     <td>{{ booking.end_time }}</td>
                     <td><span class="status-badge status-{{ booking.status }}">{{ booking.status }}</span></td>
