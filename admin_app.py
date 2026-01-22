@@ -181,7 +181,6 @@ def set_language(lang):
     """Set language preference"""
     session['language'] = lang
     return redirect(request.referrer or url_for('index'))
-    return redirect(url_for('login'))
 
 
 @app.route('/')

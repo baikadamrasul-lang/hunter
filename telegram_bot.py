@@ -144,7 +144,7 @@ async def select_zone(update: Update, context: ContextTypes.DEFAULT_TYPE):
     now = datetime.now(CLUB_TZ)
     keyboard = []
     
-    for i in range(0, 48, 4):  # Show slots every 2 hours for next 48 hours
+    for i in range(0, 48, 2):  # Show slots every 2 hours for next 48 hours
         slot_time = now + timedelta(hours=i)
         keyboard.append([InlineKeyboardButton(
             slot_time.strftime('%d.%m %H:%M'),
