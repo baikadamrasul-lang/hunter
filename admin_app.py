@@ -483,4 +483,7 @@ if __name__ == '__main__':
     
     print("Starting PC Club Admin Web Application...")
     print(f"Admin password is set: {bool(ADMIN_PASSWORD)}")
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    
+    # Only enable debug mode if explicitly set in environment
+    debug_mode = os.environ.get('FLASK_DEBUG', 'False').lower() == 'true'
+    app.run(debug=debug_mode, host='0.0.0.0', port=5000)

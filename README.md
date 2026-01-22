@@ -43,6 +43,11 @@ pip install -r requirements.txt
 export ADMIN_WEB_PASS=your_secure_password  # On Windows: set ADMIN_WEB_PASS=your_secure_password
 ```
 
+5. (Optional) Enable debug mode for development:
+```bash
+export FLASK_DEBUG=true  # On Windows: set FLASK_DEBUG=true
+```
+
 ### Running the Application
 
 Start the Flask development server:
