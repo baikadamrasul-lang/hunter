@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block title %}Smart Create - PC Club Admin{% endblock %}
+
+{% block content %}
+<h2>Smart Create Booking</h2>
+
+<form method="POST">
+    <div class="form-group">
+        <label for="zone_id">Zone</label>
+        <select id="zone_id" name="zone_id" required>
+            <option value="">Select a zone</option>
+            {% for zone in zones %}
+                <option value="{{ zone.id }}">{{ zone.name }} ({{ zone.price_per_hour }} ₸/hour)</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label for="start_slot">Start Time</label>
+        <select id="start_slot" name="start_slot" required>
+            <option value="">Select start time</option>
+            {% for slot in slots %}
+                <option value="{{ slot }}">{{ slot }}</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label for="hours">Duration (hours)</label>
+        <input type="number" id="hours" name="hours" min="0.5" step="0.5" required>
+    </div>
+
+    <div class="form-group">
+        <label for="qty">Number of PCs</label>
+        <input type="number" id="qty" name="qty" min="1" required>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Next: Choose PCs</button>
+</form>
+{% endblock %}

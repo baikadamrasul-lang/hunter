@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block title %}Waitlist - PC Club Admin{% endblock %}
+
+{% block content %}
+<h2>Waitlist</h2>
+
+{% if waitlist %}
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Zone</th>
+                <th>Requested PCs</th>
+                <th>Start Time</th>
+                <th>Duration (hours)</th>
+                <th>Created</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in waitlist %}
+                <tr>
+                    <td>{{ item.id }}</td>
+                    <td>{{ item.zone_name }}</td>
+                    <td>{{ item.requested_pcs }}</td>
+                    <td>{{ item.start_time }}</td>
+                    <td>{{ item.duration_hours }}</td>
+                    <td>{{ item.created_at }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <p>No waitlist entries.</p>
+{% endif %}
+{% endblock %}
